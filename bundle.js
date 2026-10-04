@@ -632,7 +632,7 @@
                         }(this, t), this.chat = null, this.pendingConnections = [], this.logger = new S({
                             prefix: "Player",
                             color: "#2196F3"
-                        }), this.tag = "", this.nickname1 = "", this.nickname2 = "", this.skin1 = "", this.skin2 = "", this.serverUrl = "wss://eu.mi.com:2001", this.chat = null, this.pendingConnections = []
+                        }), this.tag = "", this.nickname1 = "", this.nickname2 = "", this.skin1 = "", this.skin2 = "", this.serverUrl = "wss://eu.senpa.io:2001", this.chat = null, this.pendingConnections = []
                     }),
                     T = n(458);
 
@@ -2485,7 +2485,7 @@
                             key: "sendAuth",
                             value: function() {
                                 var t = new W;
-                                t.writeUInt8(13), t.writeUInt16(4), t.writeUTF16String("null"), this.sendMessage(t)
+                                var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUInt16(e.length), t.writeUTF16String(e), this.sendMessage(t)
                             }
                         }, {
                             key: "updatePlayerClients",
@@ -3298,7 +3298,7 @@
                             Pt(this, t), this.app = e, this.logger = new S({
                                 prefix: "Chat",
                                 color: "#FFC107"
-                            }), this.url = "wss://chatx-production-2a4a.up.railway.app", this.protocol = null, this.socket = null, this.connectionID = null, this.userID = null, this.players = new Map, this.playersByTabId = new Map, this.clientsQueue = [], this.registered = new Map, this.events = new(_t())
+                            }), this.url = "wss://chat.delt.io/delta7?protocol=v1", this.protocol = null, this.socket = null, this.connectionID = null, this.userID = null, this.players = new Map, this.playersByTabId = new Map, this.clientsQueue = [], this.registered = new Map, this.events = new(_t())
                         }, [{
                             key: "isConnected",
                             get: function() {
@@ -3969,7 +3969,7 @@
                         key: "updateChatRoom",
                         value: function() {
                             var t = "";
-                            if ("wss://eu.mi.com:2001" === this.app.player.serverUrl && (t = "wss://eu.mi.com:2001"), "wss://us.senpa.io:2001" === this.app.player.serverUrl && (t = "wss://us.mi.com:2001"), this.app.player.chat && this.app.player.chat.isConnected) {
+                            if ("wss://eu.senpa.io:2001" === this.app.player.serverUrl && (t = "wss://eu.senpa.io:2001"), "wss://us.senpa.io:2001" === this.app.player.serverUrl && (t = "wss://us.senpa.io:2001"), this.app.player.chat && this.app.player.chat.isConnected) {
                                 var e = this.tokenFromUrl(t),
                                     n = this.app.player.tag;
                                 this.app.player.chat.enterRoom(e, n, "", ":party", "")
@@ -4290,7 +4290,7 @@
                                 e = localStorage.getItem("eon_playerInputs");
                             if (e) try {
                                 var n = JSON.parse(e);
-                                this.app.player.serverUrl = "wss://eu.mi.com:2001";
+                                this.app.player.serverUrl = "wss://eu.senpa.io:2001";
                                 var r = document.querySelector(".server-select-container");
                                 r && this.app.player.serverUrl && r.querySelectorAll(".server-option").forEach(function(e) {
                                     if (e.getAttribute("data-value") === t.app.player.serverUrl) {
@@ -10471,7 +10471,7 @@ value: function(t, e) {
                         key: "sendAuth",
                         value: function() {
                             var t = new W;
-                            t.writeUInt8(13), t.writeUInt16(4), t.writeUTF16String("null"), this.sendMessage(t)
+                            var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUInt16(e.length), t.writeUTF16String(e), this.sendMessage(t)
                         }
                     }, {
                         key: "updatePlayerClients",

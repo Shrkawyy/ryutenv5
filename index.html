@@ -425,7 +425,7 @@ html #chat-input:focus,
                 <span class="arrow-icon"><i class="fa-solid fa-chevron-down"></i></span>
               </div>
               <div class="server-options">
-                <div class="server-option selected" data-value="wss://eu.mi.com:2001">DELTA — EUROPE</div>
+                <div class="server-option selected" data-value="wss://eu.senpa.io:2001">DELTA — EUROPE</div>
               </div>
             </div>
 
@@ -655,7 +655,7 @@ document.addEventListener('keydown', function(e) {
      SCRIPT LOADING ORDER  —  critical, do not reorder:
        1. extension-bridge  sets chrome attribute, no DOM deps
        2. loading           early loading screen
-       3. ryutheme          MUST wrap window.WebSocket before bundle!
+       3. jax-onyx-bridge   ONYX game endpoint + auth + WebSocket protocol bridge
        4. wasmLoader
        5. bundle            main game engine
        6. ryuten-patched    post-bundle patches
@@ -666,6 +666,7 @@ document.addEventListener('keydown', function(e) {
       11. replaysys         replays gallery (patched: no /play/ check)
       12. profiles          profile management
      ═══════════════════════════════════════════════════════════════ -->
+<script src="jax-onyx-bridge.js"></script>
 <script src="wasmLoader.js"></script>
 <script src="bundle.js"></script>
 <script src="interface.js"></script>

@@ -17,10 +17,10 @@ function loadEngine() {
 }
 test('existing saved server cannot override the requested Delta server',()=>{
  const e=loadEngine();const app={player:new e.Player()};
- assert.equal(app.player.serverUrl,'wss://eu.mi.com:2001');
+ assert.equal(app.player.serverUrl,'wss://eu.senpa.io:2001');
  e.storage.set('eon_playerInputs',JSON.stringify({lastServer:'wss://old.invalid:7101'}));
  e.Lobby.prototype.loadGlobalState.call({app,logger:console});
- assert.equal(app.player.serverUrl,'wss://eu.mi.com:2001');
+ assert.equal(app.player.serverUrl,'wss://eu.senpa.io:2001');
 });
 test('local activation is keyless and makes no remote requests',async()=>{
  const e=loadEngine(); e.context.fetch=()=>{throw Error('Unexpected remote licensing')};
@@ -75,4 +75,14 @@ test('captcha rejects unconfigured and cross-origin requests; signs tasks and hi
   global.fetch=async()=>({ok:true,json:async()=>({errorId:1,errorCode:'ERROR_ZERO_BALANCE'})});
   assert.equal((await call({action:'create'})).result.error,'Captcha provider: ERROR_ZERO_BALANCE');
  } finally { global.fetch=originalFetch;for(const key of Object.keys(process.env))if(!(key in prev))delete process.env[key];Object.assign(process.env,prev); }
+});
+
+test('ONYX transport integration is wired without bundling a login credential',()=>{
+ const source=fs.readFileSync(path.join(root,'bundle.js'),'utf8');
+ const bridge=fs.readFileSync(path.join(root,'jax-onyx-bridge.js'),'utf8');
+ assert.match(source,/wss:\/\/eu\.senpa\.io:2001/);
+ assert.match(source,/wss:\/\/chat\.delt\.io\/delta7\?protocol=v1/);
+ assert.match(source,/JaxAuth\.getToken/);
+ assert.match(bridge,/protocols = 'main'/);
+ assert.doesNotMatch(bridge,/eyJ[a-zA-Z0-9_-]{10,}\./);
 });
