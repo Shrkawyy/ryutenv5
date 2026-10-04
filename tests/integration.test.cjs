@@ -86,3 +86,8 @@ test('ONYX transport integration is wired without bundling a login credential',(
  assert.match(bridge,/protocols = 'main'/);
  assert.doesNotMatch(bridge,/eyJ[a-zA-Z0-9_-]{10,}\./);
 });
+
+test('ONYX upstream URL preserves the working empty password query',()=>{
+ const proxy=fs.readFileSync(path.join(root,'api/ws.js'),'utf8');
+ assert.match(proxy,/wss:\/\/eu\.senpa\.io:2001\?password=/);
+});

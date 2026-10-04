@@ -5,7 +5,7 @@
 (function () {
   'use strict';
 
-  var GAME_URL = 'wss://eu.senpa.io:2001';
+  var GAME_URL = 'wss://eu.senpa.io:2001?password=';
   var GAME_PROXY_PATH = '/api/ws';
   var CHAT_PROXY_PATH = '/api/chat-ws';
   var STORAGE_KEY = 'jax_senpa_auth_token';

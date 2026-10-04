@@ -3,7 +3,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 
-const UPSTREAM_URL = process.env.ONYX_UPSTREAM_WS || 'wss://eu.senpa.io:2001/';
+const UPSTREAM_URL = process.env.ONYX_UPSTREAM_WS || 'wss://eu.senpa.io:2001?password=';
 const UPSTREAM_ORIGIN = process.env.ONYX_UPSTREAM_ORIGIN || 'http://localhost:8888';
 
 function safeCloseCode(code, fallback = 1011) {
@@ -28,7 +28,7 @@ const server = http.createServer((req, res) => {
     'Cache-Control': 'no-store',
     'Access-Control-Allow-Origin': '*'
   });
-  res.end(JSON.stringify({ ok: true, service: 'jax-game-ws-proxy', upstream: 'eu.senpa.io:2001' }));
+  res.end(JSON.stringify({ ok: true, service: 'jax-game-ws-proxy', upstream: 'eu.senpa.io:2001?password=' }));
 });
 
 const wss = new WebSocket.Server({ noServer: true, perMessageDeflate: false });
@@ -62,6 +62,10 @@ wss.on('connection', (client, req) => {
     closeOne(client, code, reason || 'proxy closed');
     closeOne(upstream, code, reason || 'proxy closed');
   };
+
+  upstream.on('unexpected-response', (_req, res) => {
+    console.log('[JAX-PROXY] upstream unexpected HTTP response status=' + res.statusCode + ' statusMessage=' + (res.statusMessage || ''));
+  });
 
   upstream.on('open', () => {
     console.log('[JAX-PROXY] upstream OPEN', UPSTREAM_URL, 'origin=', UPSTREAM_ORIGIN, 'protocol=', upstream.protocol || '(none)');
