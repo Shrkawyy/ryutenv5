@@ -2693,7 +2693,7 @@
                                     var t;
                                     t = "Primary" === this.type ? this.app.player.nickname1 : this.app.player.nickname2;
                                     var e = new W;
-                                    e.writeUInt8(10), e.writeUTF16StringLength(t), this.sendMessage(e), (e = new W).writeUInt8(11), e.writeUTF16StringLength(this.app.player.tag), this.sendMessage(e.finalize())
+                                    e.writeUInt8(10), e.writeUTF16StringLength(t), this.sendMessage(e), (e = new W).writeUInt8(11), e.writeUInt16(this.app.player.tag.length), e.writeUTF16String(this.app.player.tag), this.sendMessage(e.finalize())
                                 }
                             }
                         }, {

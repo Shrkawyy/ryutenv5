@@ -6,6 +6,8 @@
   'use strict';
 
   var GAME_URL = 'wss://eu.senpa.io:2001';
+  var GAME_PROXY_PATH = '/api/ws';
+  var CHAT_PROXY_PATH = '/api/chat-ws';
   var STORAGE_KEY = 'jax_senpa_auth_token';
   var LEGACY_KEY = 'senpa_auth_token';
 
@@ -54,14 +56,24 @@
       var s = String(url || '');
       return /^(wss?:\/\/)?(?:eu\.mi\.com|eu\.senpa\.io)(?::2001)?\/?$/i.test(s);
     }
+    function isChatSocket(url) {
+      return /^wss?:\/\/chat\.delt\.io\/delta7(?:\?protocol=v1)?$/i.test(String(url || ''));
+    }
+    function localWs(path) {
+      var scheme = location.protocol === 'https:' ? 'wss://' : 'ws://';
+      return scheme + location.host + path;
+    }
     var WrappedWebSocket = new Proxy(NativeWebSocket, {
       construct: function (Target, args) {
         var url = args[0];
         var protocols = args.length > 1 ? args[1] : undefined;
         if (isGameSocket(url)) {
-          url = GAME_URL;
+          url = localWs(GAME_PROXY_PATH);
           if (protocols == null || protocols === '') protocols = 'main';
-          console.info('[JAX/ONYX] Game WebSocket ->', url, 'protocol=', protocols);
+          console.info('[JAX/ONYX] Game WebSocket ->', url, '(upstream', GAME_URL + ') protocol=', protocols);
+        } else if (isChatSocket(url)) {
+          url = localWs(CHAT_PROXY_PATH);
+          console.info('[JAX/ONYX] Chat WebSocket ->', url);
         }
         return Reflect.construct(Target, protocols === undefined ? [url] : [url, protocols]);
       }
