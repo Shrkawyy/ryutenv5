@@ -2485,7 +2485,7 @@
                             key: "sendAuth",
                             value: function() {
                                 var t = new W;
-                                var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUInt16(e.length), t.writeUTF16String(e), this.sendMessage(t)
+                                var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUTF16StringLength(e), this.sendMessage(t)
                             }
                         }, {
                             key: "updatePlayerClients",
@@ -10471,7 +10471,7 @@ value: function(t, e) {
                         key: "sendAuth",
                         value: function() {
                             var t = new W;
-                            var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUInt16(e.length), t.writeUTF16String(e), this.sendMessage(t)
+                            var e = window.JaxAuth && window.JaxAuth.getToken ? window.JaxAuth.getToken() : ""; e || (window.dispatchEvent(new CustomEvent("jax:auth-required")), e = "null"), t.writeUInt8(13), t.writeUTF16StringLength(e), this.sendMessage(t)
                         }
                     }, {
                         key: "updatePlayerClients",

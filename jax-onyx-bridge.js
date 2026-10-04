@@ -1,13 +1,14 @@
-/* JAX V5 <-> ONYX connection bridge
- * Uses the game/chat transport observed in the provided working ONYX build.
- * No login token is bundled here. Paste your own token once through the AUTH button.
+/* JAX V5 <-> ONYX direct connection bridge
+ * Matches the working ONYX frontend connection:
+ *   wss://eu.senpa.io:2001?password=
+ *   Sec-WebSocket-Protocol: main
+ *
+ * No game JWT is bundled. The AUTH button stores the user's token only in localStorage.
  */
 (function () {
   'use strict';
 
   var GAME_URL = 'wss://eu.senpa.io:2001?password=';
-  var GAME_PROXY_PATH = '/api/ws';
-  var CHAT_PROXY_PATH = '/api/chat-ws';
   var STORAGE_KEY = 'jax_senpa_auth_token';
   var LEGACY_KEY = 'senpa_auth_token';
 
@@ -47,43 +48,40 @@
     gameUrl: GAME_URL
   };
 
-  // The ONYX transport requests the `main` WebSocket subprotocol. Jax's WASM
-  // creates the socket through JS emval; wrapping WebSocket here lets us keep
-  // Jax's renderer/engine while matching the working ONYX connection shape.
+  /*
+   * Important: the provided working ONYX page does NOT load its ws-game-bridge.js
+   * in index.html. Its game client connects directly from the browser.
+   * Do the same here instead of routing the game socket through Vercel.
+   */
   var NativeWebSocket = window.WebSocket;
   if (NativeWebSocket) {
     function isGameSocket(url) {
       var s = String(url || '');
-      return /^(wss?:\/\/)?(?:eu\.mi\.com|eu\.senpa\.io)(?::2001)?\/?$/i.test(s);
+      return /^wss?:\/\/(?:eu\.mi\.com|eu\.senpa\.io)(?::2001)?(?:\/)?(?:\?password=)?$/i.test(s);
     }
-    function isChatSocket(url) {
-      return /^wss?:\/\/chat\.delt\.io\/delta7(?:\?protocol=v1)?$/i.test(String(url || ''));
-    }
-    function localWs(path) {
-      var scheme = location.protocol === 'https:' ? 'wss://' : 'ws://';
-      return scheme + location.host + path;
-    }
+
     var WrappedWebSocket = new Proxy(NativeWebSocket, {
       construct: function (Target, args) {
         var url = args[0];
         var protocols = args.length > 1 ? args[1] : undefined;
+
         if (isGameSocket(url)) {
-          url = localWs(GAME_PROXY_PATH);
-          if (protocols == null || protocols === '') protocols = 'main';
-          console.info('[JAX/ONYX] Game WebSocket ->', url, '(upstream', GAME_URL + ') protocol=', protocols);
-        } else if (isChatSocket(url)) {
-          url = localWs(CHAT_PROXY_PATH);
-          console.info('[JAX/ONYX] Chat WebSocket ->', url);
+          url = GAME_URL;
+          protocols = 'main';
+          console.info('[JAX/ONYX] Direct Game WebSocket ->', url, 'protocol=', protocols);
         }
+
         return Reflect.construct(Target, protocols === undefined ? [url] : [url, protocols]);
       }
     });
+
     window.WebSocket = WrappedWebSocket;
     try { globalThis.WebSocket = WrappedWebSocket; } catch (_) {}
   }
 
   function ensureAuthUI() {
     if (document.getElementById('jax-auth-fab')) return;
+
     var style = document.createElement('style');
     style.textContent = [
       '#jax-auth-fab{position:fixed;top:12px;right:12px;z-index:2147483000;border:1px solid rgba(45,212,191,.35);border-radius:8px;background:#10161b;color:#d9fffb;padding:7px 10px;font:700 11px/1 Segoe UI,sans-serif;cursor:pointer;box-shadow:0 8px 25px rgba(0,0,0,.3)}',
@@ -112,6 +110,7 @@
 
     var input = panel.querySelector('textarea');
     var status = panel.querySelector('.status');
+
     function refresh() {
       var ok = !!getToken();
       fab.textContent = ok ? 'AUTH ✓' : 'AUTH';
@@ -120,9 +119,15 @@
     }
     function open() { refresh(); panel.classList.add('open'); input.focus(); }
     function close() { panel.classList.remove('open'); }
+
     fab.addEventListener('click', open);
     panel.querySelector('.close').addEventListener('click', close);
-    panel.querySelector('.clear').addEventListener('click', function () { clearToken(); input.value=''; status.textContent='Token cleared.'; refresh(); });
+    panel.querySelector('.clear').addEventListener('click', function () {
+      clearToken();
+      input.value = '';
+      status.textContent = 'Token cleared.';
+      refresh();
+    });
     panel.querySelector('.save').addEventListener('click', function () {
       try {
         setToken(input.value);
@@ -131,18 +136,28 @@
         close();
         setTimeout(function () {
           try {
-            if (window.app && window.app.lobby && window.app.player) window.app.lobby.connect(window.app.player.serverUrl);
-            else location.reload();
-          } catch (_) { location.reload(); }
+            if (window.app && window.app.lobby && window.app.player) {
+              window.app.lobby.connect(window.app.player.serverUrl);
+            } else {
+              location.reload();
+            }
+          } catch (_) {
+            location.reload();
+          }
         }, 80);
-      } catch (e) { status.textContent = e.message || String(e); }
+      } catch (e) {
+        status.textContent = e.message || String(e);
+      }
     });
-    panel.addEventListener('click', function(e){ if(e.target===panel) close(); });
-    window.addEventListener('jax:auth-required', function(){ if(!getToken()) open(); });
+    panel.addEventListener('click', function (e) { if (e.target === panel) close(); });
+    window.addEventListener('jax:auth-required', function () { if (!getToken()) open(); });
     window.addEventListener('jax:auth-changed', refresh);
     refresh();
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensureAuthUI);
-  else ensureAuthUI();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', ensureAuthUI);
+  } else {
+    ensureAuthUI();
+  }
 })();

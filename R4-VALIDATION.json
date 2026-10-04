@@ -1,0 +1,7 @@
+{
+  "direct_game_url": true,
+  "forces_main_protocol": true,
+  "does_not_route_game_to_api_ws": true,
+  "auth_old_uint16_removed": true,
+  "auth_exact_occurrences": 2
+}
