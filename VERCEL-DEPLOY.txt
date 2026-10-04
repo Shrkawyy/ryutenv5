@@ -1,0 +1,17 @@
+Jax V5 — Vercel deployment notes
+
+Vercel Project Settings:
+- Framework Preset: Other
+- Root Directory: repository root (./)
+- Build Command: leave empty / disabled
+- Output Directory: leave empty
+- Install Command: default is fine
+
+After pushing this version:
+1. Open Vercel > Project > Deployments.
+2. Redeploy the latest commit.
+3. Make sure the production branch is the branch containing index.html.
+4. Open the deployment's Source/Output and verify index.html exists at the deployment root.
+5. Add CAPTCHA environment variables in Vercel Settings > Environment Variables (do not commit secret keys).
+
+The root URL is explicitly rewritten to /index.html in vercel.json.
